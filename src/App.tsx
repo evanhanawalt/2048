@@ -4,22 +4,46 @@ function App() {
   const { grid, score, gameOver } = useGameState();
   return (
     <>
-      <p>Score: {score}</p>
-      <p>Game Over: {gameOver}</p>
-      <div className="grid h-96 w-96 grid-cols-4 justify-items-center justify-items-stretch gap-1 bg-black text-center">
-        {grid.map((row) =>
-          row.map((value) => <div className="bg-slate-500">{value}</div>),
-        )}
-        {/* <div className="bg-slate-500">1</div>
-        <div className="bg-slate-500">2</div>
-        <div className="bg-slate-500">3</div>
-        <div className="bg-slate-500">4</div>
-        <div className="bg-slate-500">5</div>
-        <div className="bg-slate-500">6</div>
-        <div className="bg-slate-500">7</div>
-        <div className="bg-slate-500">8</div>
-        <div className="bg-slate-500">9</div> */}
-      </div>
+      <main className="flex w-full flex-col items-center bg-black">
+        <p>Score: {score}</p>
+        <p>Game Over: {gameOver}</p>
+        <div className="glow-animation bg-white p-2">
+          <div className="grid h-96 w-96 grid-cols-4 gap-2 rounded-lg bg-white text-center">
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div className="bg-gray-200"></div>
+            <div
+              className="absolute grid  h-96 w-96 auto-rows-[1fr]  grid-cols-4 gap-2"
+              style={{ transition: "100ms" }}
+            >
+              {grid.map((row, rowI) =>
+                row.map((value, colI) => (
+                  <div
+                    key={rowI * 4 + colI}
+                    className={`overflow-hidden ${value ? "bg-slate-500" : "bg-transparent"}`}
+                    style={{ transition: "100ms" }}
+                  >
+                    {value}
+                  </div>
+                )),
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
     </>
   );
 }

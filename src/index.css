@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes glow {
+  from {
+    box-shadow:
+      0 0 10px transparent,
+      0 0 20px #fff,
+      0 0 40px #e879f9,
+      0 0 70px #e879f9;
+  }
+  to {
+    box-shadow:
+      0 0 5px #fff,
+      0 0 10px #fff,
+      0 0 20px #e879f9,
+      0 0 35px #e879f9;
+  }
+}
+.glow-animation {
+  animation: glow 2.5s ease-in-out infinite alternate;
+}
