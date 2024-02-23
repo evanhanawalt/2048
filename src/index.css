@@ -21,3 +21,75 @@
 .glow-animation {
   animation: glow 2.5s ease-in-out infinite alternate;
 }
+
+.pos-0-0 {
+}
+.pos-0-1 {
+  transform: translateX(6.2rem);
+}
+.pos-0-2 {
+  transform: translateX(12.3rem);
+}
+.pos-0-3 {
+  transform: translateX(18.4rem);
+}
+
+.pos-1-0 {
+  transform: translateY(6.2rem);
+}
+.pos-1-1 {
+  transform: translateX(6.2rem) translateY(6.2rem);
+}
+.pos-1-2 {
+  transform: translateX(12.3rem) translateY(6.2rem);
+}
+.pos-1-3 {
+  transform: translateX(18.4rem) translateY(6.2rem);
+}
+
+.pos-2-0 {
+  transform: translateY(12.3rem);
+}
+.pos-2-1 {
+  transform: translateX(6.2rem) translateY(12.3rem);
+}
+.pos-2-2 {
+  transform: translateX(12.3rem) translateY(12.3rem);
+}
+.pos-2-3 {
+  transform: translateX(18.4rem) translateY(12.3rem);
+}
+
+.pos-3-0 {
+  transform: translateY(18.4rem);
+}
+.pos-3-1 {
+  transform: translate(6.2rem, 18.4rem);
+}
+.pos-3-2 {
+  transform: translateX(12.3rem) translateY(18.4rem);
+}
+.pos-3-3 {
+  transform: translateX(18.4rem) translateY(18.4rem);
+}
+.tile-2 {
+  background: #eee4da;
+}
+.tile-4 {
+  background: #eee1c9;
+}
+.tile-8 {
+  background: #f3b27a;
+}
+.tile-16 {
+  background: #f69664;
+}
+.tile-32 {
+  background: #f77c5f;
+}
+.tile-64 {
+  background: #f75f3b;
+}
+.tile-128 {
+  background: #edd073;
+}

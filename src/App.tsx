@@ -1,7 +1,8 @@
 import { useGameState } from "./useGameState";
 
 function App() {
-  const { grid, score, gameOver } = useGameState();
+  const { tiles, score, gameOver } = useGameState();
+
   return (
     <>
       <main className="flex w-full flex-col items-center bg-black">
@@ -25,21 +26,16 @@ function App() {
             <div className="bg-gray-200"></div>
             <div className="bg-gray-200"></div>
             <div className="bg-gray-200"></div>
-            <div
-              className="absolute grid  h-96 w-96 auto-rows-[1fr]  grid-cols-4 gap-2"
-              style={{ transition: "100ms" }}
-            >
-              {grid.map((row, rowI) =>
-                row.map((value, colI) => (
-                  <div
-                    key={rowI * 4 + colI}
-                    className={`overflow-hidden ${value ? "bg-slate-500" : "bg-transparent"}`}
-                    style={{ transition: "100ms" }}
-                  >
-                    {value}
-                  </div>
-                )),
-              )}
+            <div className="absolute h-96 w-96" style={{ transition: "100ms" }}>
+              {tiles.map((tile) => (
+                <div
+                  key={tile.key}
+                  className={`absolute h-[5.5rem] w-[5.5rem] overflow-hidden bg-slate-500 tile-${tile.value} pos-${tile.coords.row}-${tile.coords.col}`}
+                  style={{ transition: "100ms" }}
+                >
+                  {tile.value}
+                </div>
+              ))}
             </div>
           </div>
         </div>

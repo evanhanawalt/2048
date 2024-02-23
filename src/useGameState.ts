@@ -1,6 +1,18 @@
 import { useEffect, useReducer } from "react";
+let tileIdCounter = 0;
+type RealTile = {
+  value: number;
+  key: number;
+  coords: { row: number; col: number };
+};
 
-type Tile = null | number;
+type Tile = { value: number; key: number } | null;
+
+type GameData = {
+  tiles: RealTile[];
+  score: number;
+  gameOver: boolean;
+};
 
 type GameState = {
   grid: Tile[][];
@@ -81,11 +93,12 @@ const combineLeft: GameStateFunction = ({
       if (
         grid[row][col] &&
         grid[row][col + 1] &&
-        grid[row][col] === grid[row][col + 1]
+        grid[row][col]?.value === grid[row][col + 1]?.value
       ) {
         //@ts-ignore
-        const newTotal = grid[row][col] + grid[row][col + 1];
-        grid[row][col] = newTotal;
+        const newTotal = grid[row][col]?.value + grid[row][col + 1].value;
+        //@ts-ignore
+        grid[row][col].value = newTotal;
         score += newTotal;
         grid[row][col + 1] = null;
       }
@@ -104,11 +117,12 @@ const combineRight: GameStateFunction = ({
       if (
         grid[row][col] &&
         grid[row][col - 1] &&
-        grid[row][col] === grid[row][col - 1]
+        grid[row][col]?.value === grid[row][col - 1]?.value
       ) {
         //@ts-ignore
-        const newTotal = grid[row][col] + grid[row][col - 1];
-        grid[row][col] = newTotal;
+        const newTotal = grid[row][col].value + grid[row][col - 1].value;
+        //@ts-ignore
+        grid[row][col].value = newTotal;
         score += newTotal;
         grid[row][col - 1] = null;
       }
@@ -123,11 +137,12 @@ const combineUp: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
       if (
         grid[row][col] &&
         grid[row + 1][col] &&
-        grid[row][col] === grid[row + 1][col]
+        grid[row][col]?.value === grid[row + 1][col]?.value
       ) {
         //@ts-ignore
-        const newTotal = grid[row][col] + grid[row + 1][col];
-        grid[row][col] = newTotal;
+        const newTotal = grid[row][col]?.value + grid[row + 1][col]?.value;
+        //@ts-ignore
+        grid[row][col].value = newTotal;
         score += newTotal;
         grid[row + 1][col] = null;
       }
@@ -141,16 +156,18 @@ const combineDown: GameStateFunction = ({
   score,
   gameOver,
 }: GameState) => {
+  debugger;
   for (let col = 0; col < grid.length; col++) {
     for (let row = grid.length - 1; row > 0; row--) {
       if (
         grid[row][col] &&
         grid[row - 1][col] &&
-        grid[row][col] === grid[row - 1][col]
+        grid[row][col]?.value === grid[row - 1][col]?.value
       ) {
         //@ts-ignore
-        const newTotal = grid[row][col] + grid[row - 1][col];
-        grid[row][col] = newTotal;
+        const newTotal = grid[row][col]?.value + grid[row - 1][col]?.value;
+        //@ts-ignore
+        grid[row][col].value = newTotal;
         score += newTotal;
         grid[row - 1][col] = null;
       }
@@ -160,11 +177,11 @@ const combineDown: GameStateFunction = ({
 };
 
 const generateNewTileCoords = (grid: Tile[][]) => {
-  let available: [number, number][] = [];
+  let available: { row: number; col: number }[] = [];
   for (let row = 0; row < grid.length; row++) {
     for (let col = 0; col < grid.length; col++) {
       if (grid[row][col] === null) {
-        available.push([row, col]);
+        available.push({ row, col });
       }
     }
   }
@@ -188,10 +205,16 @@ const checkForGameOver = (grid: Tile[][]) => {
   for (let row = 0; row < grid.length; row++) {
     for (let col = 0; col < grid[row].length; col++) {
       // check for adjecent values that can be combined
-      if (col + 1 < grid[row].length && grid[row][col] === grid[row][col + 1]) {
+      if (
+        col + 1 < grid[row].length &&
+        grid[row][col]?.value === grid[row][col + 1]?.value
+      ) {
         return { open, gameOver: false };
       }
-      if (row + 1 < grid.length && grid[row][col] === grid[row + 1][col]) {
+      if (
+        row + 1 < grid.length &&
+        grid[row][col]?.value === grid[row + 1][col]?.value
+      ) {
         return { open, gameOver: false };
       }
     }
@@ -199,8 +222,33 @@ const checkForGameOver = (grid: Tile[][]) => {
 
   return { open, gameOver: true };
 };
-
+const checkGridChange = (initial: Tile[][], changed: Tile[][]) => {
+  debugger;
+  for (let row = 0; row < initial.length; row++) {
+    for (let col = 0; col < initial[row].length; col++) {
+      const i = initial[row][col];
+      const n = changed[row][col];
+      if (i === null && n !== null) {
+        return true;
+      }
+      if (i && n && i.value !== n.value) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
 const gameReducer = (state: GameState, action: GameAction) => {
+  // Make Sure not to mutate the state so that the reducer is pure
+  const stateCopy: GameState = {
+    gameOver: state.gameOver,
+    score: state.score,
+    grid: state.grid.map((row) =>
+      row.map((val) => {
+        return val ? { value: val.value, key: val.key } : null;
+      }),
+    ),
+  };
   let moveFunc: GameStateFunction;
   let combineFunc: GameStateFunction;
   switch (action.type) {
@@ -223,12 +271,18 @@ const gameReducer = (state: GameState, action: GameAction) => {
     default:
       throw new Error("Reducer Failed?");
   }
-  const { grid, score } = moveFunc(combineFunc(moveFunc(state)));
+  // move and combine the tiles
+  const { grid, score } = moveFunc(combineFunc(moveFunc(stateCopy)));
   const { open, gameOver } = checkForGameOver(grid);
-
-  if (open > 0) {
+  const gridChange = checkGridChange(state.grid, grid);
+  // check that the move was valid, and there is an open space to insert a new tile
+  if (gridChange && open > 0) {
     const newCoords = generateNewTileCoords(grid);
-    grid[newCoords[0]][newCoords[1]] = Math.random() > 0.9 ? 4 : 2;
+    grid[newCoords.row][newCoords.col] = {
+      value: Math.random() > 0.9 ? 4 : 2,
+      key: tileIdCounter,
+    };
+    tileIdCounter += 1;
   }
 
   return {
@@ -238,10 +292,10 @@ const gameReducer = (state: GameState, action: GameAction) => {
   };
 };
 
-const randomTile = () => [
-  Math.floor(Math.random() * 4),
-  Math.floor(Math.random() * 4),
-];
+const randomTile = () => ({
+  row: Math.floor(Math.random() * 4),
+  col: Math.floor(Math.random() * 4),
+});
 const generateInitialBoard = () => {
   let grid: Tile[][] = [
     [null, null, null, null],
@@ -251,22 +305,36 @@ const generateInitialBoard = () => {
   ];
   let first = randomTile();
   let second = randomTile();
-  while (first[0] === second[0] && first[1] === second[1]) {
+  while (first.row === second.row && first.col === second.col) {
     second = randomTile();
   }
-  grid[first[0]][first[1]] = 2;
-  grid[second[0]][second[1]] = 2;
+  grid[first.row][first.col] = {
+    value: 2,
+    key: tileIdCounter,
+  };
+  tileIdCounter += 1;
+  grid[second.row][second.col] = {
+    value: 2,
+    key: tileIdCounter,
+  };
   return grid;
 };
-type UseGameStateType = () => GameState;
-
-export const useGameState: UseGameStateType = () => {
-  const [gameState, dispatch] = useReducer(gameReducer, {
+const createInitialState = () => {
+  return {
     grid: generateInitialBoard(),
     score: 0,
     gameOver: false,
-  });
+  };
+};
 
+type UseGameStateType = () => GameData;
+const sortTiles = (a: RealTile, b: RealTile) => a.key - b.key;
+export const useGameState: UseGameStateType = () => {
+  const [{ gameOver, grid, score }, dispatch] = useReducer(
+    gameReducer,
+    null,
+    createInitialState,
+  );
   useEffect(() => {
     const keyControl = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") {
@@ -286,5 +354,25 @@ export const useGameState: UseGameStateType = () => {
     };
   }, [dispatch]);
 
-  return gameState;
+  const tiles: RealTile[] = [];
+  for (let row = 0; row < grid.length; row++) {
+    for (let col = 0; col < grid[row].length; col++) {
+      const t = grid[row][col];
+      if (t === null) {
+        continue;
+      } else {
+        tiles.push({
+          value: t.value,
+          key: t.key,
+          coords: { row, col },
+        });
+      }
+    }
+  }
+  tiles.sort(sortTiles);
+  return {
+    tiles,
+    gameOver,
+    score,
+  };
 };
