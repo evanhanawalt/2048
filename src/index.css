@@ -73,23 +73,97 @@
   transform: translateX(18.4rem) translateY(18.4rem);
 }
 .tile-2 {
-  background: #eee4da;
+  background: #efabcb;
+  font-size: 2.5rem;
 }
 .tile-4 {
-  background: #eee1c9;
+  background: #fca5fd;
+  font-size: 2.5rem;
 }
 .tile-8 {
-  background: #f3b27a;
+  background: #d95fcc;
+  color: white;
+  font-size: 2.5rem;
 }
 .tile-16 {
-  background: #f69664;
+  background: #eabdf7;
+  font-size: 2.5rem;
 }
 .tile-32 {
-  background: #f77c5f;
+  background: #b965a3;
+  color: white;
+  font-size: 2.5rem;
 }
 .tile-64 {
-  background: #f75f3b;
+  background: #6b2d68;
+  color: white;
+  font-size: 2.5rem;
 }
 .tile-128 {
-  background: #edd073;
+  background: #56018c;
+  color: white;
+  font-size: 2rem;
+}
+.tile-256 {
+  background: #9744ee;
+  color: white;
+  font-size: 2rem;
+}
+.tile-512 {
+  background: #eb21b6;
+  color: white;
+  font-size: 2rem;
+}
+.tile-1024 {
+  background: #e66a86;
+  color: white;
+  font-size: 1.8rem;
+}
+.tile-2048 {
+  background: #f1a56b;
+  font-size: 1.8rem;
+}
+.tile-4096 {
+  background: #f9e644;
+  font-size: 1.8rem;
+}
+.tile-8192 {
+  background: #05ffcf;
+  font-size: 1.8rem;
+}
+.tile-16384 {
+  background: #4d7dbc;
+  color: white;
+  font-size: 1.5rem;
+}
+.tile-32768 {
+  background: #1f1853;
+  color: white;
+  font-size: 1.5rem;
+}
+
+@keyframes new-tile {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.tile-new {
+  animation: new-tile 250ms ease-in-out 0ms;
+}
+
+@keyframes merged-tile {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.2);
+  }
+}
+.tile-merged {
+  animation: merged-tile 200ms ease-in-out 0ms;
 }

@@ -1,12 +1,17 @@
 import { useEffect, useReducer } from "react";
-let tileIdCounter = 0;
+
 type RealTile = {
   value: number;
-  key: number;
+  key: string;
+  state: "new" | "merged" | null | undefined;
   coords: { row: number; col: number };
 };
 
-type Tile = { value: number; key: number } | null;
+type Tile = {
+  value: number;
+  key: string;
+  state: "new" | "merged" | null | undefined;
+} | null;
 
 type GameData = {
   tiles: RealTile[];
@@ -99,6 +104,8 @@ const combineLeft: GameStateFunction = ({
         const newTotal = grid[row][col]?.value + grid[row][col + 1].value;
         //@ts-ignore
         grid[row][col].value = newTotal;
+        //@ts-ignore
+        grid[row][col].state = "merged";
         score += newTotal;
         grid[row][col + 1] = null;
       }
@@ -123,6 +130,8 @@ const combineRight: GameStateFunction = ({
         const newTotal = grid[row][col].value + grid[row][col - 1].value;
         //@ts-ignore
         grid[row][col].value = newTotal;
+        //@ts-ignore
+        grid[row][col].state = "merged";
         score += newTotal;
         grid[row][col - 1] = null;
       }
@@ -143,6 +152,8 @@ const combineUp: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
         const newTotal = grid[row][col]?.value + grid[row + 1][col]?.value;
         //@ts-ignore
         grid[row][col].value = newTotal;
+        //@ts-ignore
+        grid[row][col].state = "merged";
         score += newTotal;
         grid[row + 1][col] = null;
       }
@@ -156,7 +167,6 @@ const combineDown: GameStateFunction = ({
   score,
   gameOver,
 }: GameState) => {
-  debugger;
   for (let col = 0; col < grid.length; col++) {
     for (let row = grid.length - 1; row > 0; row--) {
       if (
@@ -168,6 +178,8 @@ const combineDown: GameStateFunction = ({
         const newTotal = grid[row][col]?.value + grid[row - 1][col]?.value;
         //@ts-ignore
         grid[row][col].value = newTotal;
+        //@ts-ignore
+        grid[row][col].state = "merged";
         score += newTotal;
         grid[row - 1][col] = null;
       }
@@ -223,7 +235,6 @@ const checkForGameOver = (grid: Tile[][]) => {
   return { open, gameOver: true };
 };
 const checkGridChange = (initial: Tile[][], changed: Tile[][]) => {
-  debugger;
   for (let row = 0; row < initial.length; row++) {
     for (let col = 0; col < initial[row].length; col++) {
       const i = initial[row][col];
@@ -245,7 +256,7 @@ const gameReducer = (state: GameState, action: GameAction) => {
     score: state.score,
     grid: state.grid.map((row) =>
       row.map((val) => {
-        return val ? { value: val.value, key: val.key } : null;
+        return val ? { value: val.value, key: val.key, state: null } : null;
       }),
     ),
   };
@@ -280,9 +291,9 @@ const gameReducer = (state: GameState, action: GameAction) => {
     const newCoords = generateNewTileCoords(grid);
     grid[newCoords.row][newCoords.col] = {
       value: Math.random() > 0.9 ? 4 : 2,
-      key: tileIdCounter,
+      key: crypto.randomUUID(),
+      state: "new",
     };
-    tileIdCounter += 1;
   }
 
   return {
@@ -310,12 +321,13 @@ const generateInitialBoard = () => {
   }
   grid[first.row][first.col] = {
     value: 2,
-    key: tileIdCounter,
+    key: crypto.randomUUID(),
+    state: "new",
   };
-  tileIdCounter += 1;
   grid[second.row][second.col] = {
     value: 2,
-    key: tileIdCounter,
+    key: crypto.randomUUID(),
+    state: "new",
   };
   return grid;
 };
@@ -328,7 +340,7 @@ const createInitialState = () => {
 };
 
 type UseGameStateType = () => GameData;
-const sortTiles = (a: RealTile, b: RealTile) => a.key - b.key;
+
 export const useGameState: UseGameStateType = () => {
   const [{ gameOver, grid, score }, dispatch] = useReducer(
     gameReducer,
@@ -365,11 +377,12 @@ export const useGameState: UseGameStateType = () => {
           value: t.value,
           key: t.key,
           coords: { row, col },
+          state: t.state,
         });
       }
     }
   }
-  tiles.sort(sortTiles);
+  tiles.sort();
   return {
     tiles,
     gameOver,
