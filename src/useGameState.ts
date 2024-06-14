@@ -2,14 +2,14 @@ import { useEffect, useReducer } from "react";
 
 type RealTile = {
   value: number;
-  key: string;
+  key: number;
   state: "new" | "merged" | null | undefined;
   coords: { row: number; col: number };
 };
 
 type Tile = {
   value: number;
-  key: string;
+  key: number;
   state: "new" | "merged" | null | undefined;
 } | null;
 
@@ -36,11 +36,38 @@ export enum GameActionKind {
 export interface GameAction {
   type: GameActionKind;
 }
+let keyCounter = 0;
 
-const moveRight: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
+const getKey = () => {
+  keyCounter += 1;
+  return keyCounter;
+};
+
+const right: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
   let result: Tile[][] = [];
-  for (let i = 0; i < grid.length; i++) {
-    const filteredRow = grid[i].filter((value) => value);
+  for (let row = 0; row < grid.length; row++) {
+    for (let col = grid[row].length - 1; col > 0; col--) {
+      if (!grid[row][col]) {
+        continue;
+      }
+      for (let mergeCol = col - 1; mergeCol >= 0; mergeCol--) {
+        if (!grid[row][mergeCol]) {
+          continue;
+        }
+        if (grid[row][col]?.value === grid[row][mergeCol]?.value) {
+          //@ts-ignore
+          const newTotal = grid[row][col]?.value + grid[row][mergeCol].value;
+          //@ts-ignore
+          grid[row][col].value = newTotal;
+          //@ts-ignore
+          grid[row][col].state = "merged";
+          score += newTotal;
+          grid[row][mergeCol] = null;
+        }
+        break;
+      }
+    }
+    const filteredRow = grid[row].filter((value) => value);
     const nullFill = Array(4 - filteredRow.length).fill(null);
     const newRow = nullFill.concat(filteredRow);
     result.push(newRow);
@@ -48,10 +75,34 @@ const moveRight: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
   return { grid: result, score, gameOver };
 };
 
-const moveLeft: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
+const left: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
   let result: Tile[][] = [];
-  for (let i = 0; i < grid.length; i++) {
-    const filteredRow = grid[i].filter((value) => value);
+
+  for (let row = 0; row < grid.length; row++) {
+    for (let col = 0; col < grid[row].length - 1; col++) {
+      if (!grid[row][col]) {
+        continue;
+      }
+      for (let mergeCol = col + 1; mergeCol < grid[row].length; mergeCol++) {
+        if (!grid[row][mergeCol]) {
+          continue;
+        }
+
+        if (grid[row][col]?.value === grid[row][mergeCol]?.value) {
+          //@ts-ignore
+          const newTotal = grid[row][col]?.value + grid[row][mergeCol].value;
+          //@ts-ignore
+          grid[row][col].value = newTotal;
+          //@ts-ignore
+          grid[row][col].state = "merged";
+          score += newTotal;
+          grid[row][mergeCol] = null;
+        }
+        break;
+      }
+    }
+
+    const filteredRow = grid[row].filter((value) => value);
     const nullFill = Array(4 - filteredRow.length).fill(null);
     const newRow = filteredRow.concat(nullFill);
     result.push(newRow);
@@ -59,9 +110,30 @@ const moveLeft: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
   return { grid: result, score, gameOver };
 };
 
-const moveUp: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
+const up: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
   let result: Tile[][] = [[], [], [], []];
   for (let col = 0; col < grid.length; col++) {
+    for (let row = 0; row < grid.length - 1; row++) {
+      if (!grid[row][col]) {
+        continue;
+      }
+      for (let mergeRow = row + 1; mergeRow < grid.length; mergeRow++) {
+        if (!grid[mergeRow][col]) {
+          continue;
+        }
+        if (grid[mergeRow][col]?.value === grid[row][col]?.value) {
+          //@ts-ignore
+          const newTotal = grid[mergeRow][col]?.value + grid[row][col]?.value;
+          //@ts-ignore
+          grid[row][col].value = newTotal;
+          //@ts-ignore
+          grid[row][col].state = "merged";
+          score += newTotal;
+          grid[mergeRow][col] = null;
+        }
+        break;
+      }
+    }
     const values = [grid[0][col], grid[1][col], grid[2][col], grid[3][col]];
     const filteredCol = values.filter((value) => value);
     const nullFill = Array(4 - filteredCol.length).fill(null);
@@ -71,12 +143,39 @@ const moveUp: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
     result[2][col] = newCol[2];
     result[3][col] = newCol[3];
   }
+
   return { grid: result, score, gameOver };
 };
 
-const moveDown: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
+const down: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
   let result: Tile[][] = [[], [], [], []];
   for (let col = 0; col < grid.length; col++) {
+    // look to combine tiles
+    for (let row = grid.length - 1; row > 0; row--) {
+      //if this is not a tile, then skip
+      if (!grid[row][col]) {
+        continue;
+      }
+      for (let mergeRow = row - 1; mergeRow >= 0; mergeRow--) {
+        //if this is not a tile, then skip
+        if (!grid[mergeRow][col]) {
+          continue;
+        }
+        // if we find a tile, either merge (match) or break the while loop (nomatch)
+        if (grid[mergeRow][col]?.value === grid[row][col]?.value) {
+          //@ts-ignore
+          const newTotal = grid[mergeRow][col]?.value + grid[row][col]?.value;
+          //@ts-ignore
+          grid[row][col].value = newTotal;
+          //@ts-ignore
+          grid[row][col].state = "merged";
+          score += newTotal;
+          grid[mergeRow][col] = null;
+        }
+        break;
+      }
+    }
+    //shift this column down in the results
     const values = [grid[0][col], grid[1][col], grid[2][col], grid[3][col]];
     const filteredCol = values.filter((value) => value);
     const nullFill = Array(4 - filteredCol.length).fill(null);
@@ -86,106 +185,8 @@ const moveDown: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
     result[2][col] = newCol[2];
     result[3][col] = newCol[3];
   }
+
   return { grid: result, score, gameOver };
-};
-const combineLeft: GameStateFunction = ({
-  grid,
-  score,
-  gameOver,
-}: GameState) => {
-  for (let row = 0; row < grid.length; row++) {
-    for (let col = 0; col < grid[row].length - 1; col++) {
-      if (
-        grid[row][col] &&
-        grid[row][col + 1] &&
-        grid[row][col]?.value === grid[row][col + 1]?.value
-      ) {
-        //@ts-ignore
-        const newTotal = grid[row][col]?.value + grid[row][col + 1].value;
-        //@ts-ignore
-        grid[row][col].value = newTotal;
-        //@ts-ignore
-        grid[row][col].state = "merged";
-        score += newTotal;
-        grid[row][col + 1] = null;
-      }
-    }
-  }
-  return { grid, score, gameOver };
-};
-
-const combineRight: GameStateFunction = ({
-  grid,
-  score,
-  gameOver,
-}: GameState) => {
-  for (let row = 0; row < grid.length; row++) {
-    for (let col = grid[row].length - 1; col > 0; col--) {
-      if (
-        grid[row][col] &&
-        grid[row][col - 1] &&
-        grid[row][col]?.value === grid[row][col - 1]?.value
-      ) {
-        //@ts-ignore
-        const newTotal = grid[row][col].value + grid[row][col - 1].value;
-        //@ts-ignore
-        grid[row][col].value = newTotal;
-        //@ts-ignore
-        grid[row][col].state = "merged";
-        score += newTotal;
-        grid[row][col - 1] = null;
-      }
-    }
-  }
-  return { grid, score, gameOver };
-};
-
-const combineUp: GameStateFunction = ({ grid, score, gameOver }: GameState) => {
-  for (let col = 0; col < grid.length; col++) {
-    for (let row = 0; row < grid.length - 1; row++) {
-      if (
-        grid[row][col] &&
-        grid[row + 1][col] &&
-        grid[row][col]?.value === grid[row + 1][col]?.value
-      ) {
-        //@ts-ignore
-        const newTotal = grid[row][col]?.value + grid[row + 1][col]?.value;
-        //@ts-ignore
-        grid[row][col].value = newTotal;
-        //@ts-ignore
-        grid[row][col].state = "merged";
-        score += newTotal;
-        grid[row + 1][col] = null;
-      }
-    }
-  }
-  return { grid, score, gameOver };
-};
-
-const combineDown: GameStateFunction = ({
-  grid,
-  score,
-  gameOver,
-}: GameState) => {
-  for (let col = 0; col < grid.length; col++) {
-    for (let row = grid.length - 1; row > 0; row--) {
-      if (
-        grid[row][col] &&
-        grid[row - 1][col] &&
-        grid[row][col]?.value === grid[row - 1][col]?.value
-      ) {
-        //@ts-ignore
-        const newTotal = grid[row][col]?.value + grid[row - 1][col]?.value;
-        //@ts-ignore
-        grid[row][col].value = newTotal;
-        //@ts-ignore
-        grid[row][col].state = "merged";
-        score += newTotal;
-        grid[row - 1][col] = null;
-      }
-    }
-  }
-  return { grid, score, gameOver };
 };
 
 const generateNewTileCoords = (grid: Tile[][]) => {
@@ -260,30 +261,26 @@ const gameReducer = (state: GameState, action: GameAction) => {
       }),
     ),
   };
-  let moveFunc: GameStateFunction;
-  let combineFunc: GameStateFunction;
+  let stateFunction: GameStateFunction;
+
   switch (action.type) {
     case GameActionKind.DOWN:
-      moveFunc = moveDown;
-      combineFunc = combineDown;
+      stateFunction = down;
       break;
     case GameActionKind.UP:
-      moveFunc = moveUp;
-      combineFunc = combineUp;
+      stateFunction = up;
       break;
     case GameActionKind.LEFT:
-      moveFunc = moveLeft;
-      combineFunc = combineLeft;
+      stateFunction = left;
       break;
     case GameActionKind.RIGHT:
-      moveFunc = moveRight;
-      combineFunc = combineRight;
+      stateFunction = right;
       break;
     default:
       throw new Error("Reducer Failed?");
   }
   // move and combine the tiles
-  const { grid, score } = moveFunc(combineFunc(moveFunc(stateCopy)));
+  const { grid, score } = stateFunction(stateCopy);
   const { open, gameOver } = checkForGameOver(grid);
   const gridChange = checkGridChange(state.grid, grid);
   // check that the move was valid, and there is an open space to insert a new tile
@@ -291,7 +288,7 @@ const gameReducer = (state: GameState, action: GameAction) => {
     const newCoords = generateNewTileCoords(grid);
     grid[newCoords.row][newCoords.col] = {
       value: Math.random() > 0.9 ? 4 : 2,
-      key: crypto.randomUUID(),
+      key: getKey(),
       state: "new",
     };
   }
@@ -321,12 +318,12 @@ const generateInitialBoard = () => {
   }
   grid[first.row][first.col] = {
     value: 2,
-    key: crypto.randomUUID(),
+    key: getKey(),
     state: "new",
   };
   grid[second.row][second.col] = {
     value: 2,
-    key: crypto.randomUUID(),
+    key: getKey(),
     state: "new",
   };
   return grid;
@@ -340,7 +337,7 @@ const createInitialState = () => {
 };
 
 type UseGameStateType = () => GameData;
-
+const sortTiles = (a: RealTile, b: RealTile) => a.key - b.key;
 export const useGameState: UseGameStateType = () => {
   const [{ gameOver, grid, score }, dispatch] = useReducer(
     gameReducer,
@@ -382,7 +379,7 @@ export const useGameState: UseGameStateType = () => {
       }
     }
   }
-  tiles.sort();
+  tiles.sort(sortTiles);
   return {
     tiles,
     gameOver,

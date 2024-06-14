@@ -5,8 +5,7 @@ function App() {
 
   return (
     <main className="flex w-full flex-col items-center bg-black">
-      <p>Score: {score}</p>
-      <p>Game Over: {gameOver}</p>
+      <p className="text-white">Score: {score}</p>
       <div className="glow-animation bg-white p-2">
         <div className="grid h-96 w-96 grid-cols-4 gap-2 rounded-lg bg-white text-center">
           <div className="bg-gray-200"></div>
@@ -37,7 +36,6 @@ function App() {
                 <div
                   className={`h-full w-full overflow-hidden bg-slate-500 align-middle font-bold shadow-md tile-${tile.value} ${tile.state === "new" ? "tile-new" : ""} ${tile.state === "merged" ? "tile-merged" : ""}`}
                   style={{
-                    transition: "100ms ease-in-out",
                     lineHeight: "5.5rem",
                   }}
                 >

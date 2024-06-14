@@ -23,54 +23,55 @@
 }
 
 .pos-0-0 {
+  transform: translate(0rem, 0rem);
 }
 .pos-0-1 {
-  transform: translateX(6.2rem);
+  transform: translate(6.2rem, 0rem);
 }
 .pos-0-2 {
-  transform: translateX(12.3rem);
+  transform: translate(12.3rem, 0rem);
 }
 .pos-0-3 {
-  transform: translateX(18.4rem);
+  transform: translate(18.4rem, 0rem);
 }
 
 .pos-1-0 {
-  transform: translateY(6.2rem);
+  transform: translate(0rem, 6.2rem);
 }
 .pos-1-1 {
-  transform: translateX(6.2rem) translateY(6.2rem);
+  transform: translate(6.2rem, 6.2rem);
 }
 .pos-1-2 {
-  transform: translateX(12.3rem) translateY(6.2rem);
+  transform: translate(12.3rem, 6.2rem);
 }
 .pos-1-3 {
-  transform: translateX(18.4rem) translateY(6.2rem);
+  transform: translate(18.4rem, 6.2rem);
 }
 
 .pos-2-0 {
-  transform: translateY(12.3rem);
+  transform: translate(0rem, 12.3rem);
 }
 .pos-2-1 {
-  transform: translateX(6.2rem) translateY(12.3rem);
+  transform: translate(6.2rem, 12.3rem);
 }
 .pos-2-2 {
-  transform: translateX(12.3rem) translateY(12.3rem);
+  transform: translate(12.3rem, 12.3rem);
 }
 .pos-2-3 {
-  transform: translateX(18.4rem) translateY(12.3rem);
+  transform: translate(18.4rem, 12.3rem);
 }
 
 .pos-3-0 {
-  transform: translateY(18.4rem);
+  transform: translate(0rem, 18.4rem);
 }
 .pos-3-1 {
   transform: translate(6.2rem, 18.4rem);
 }
 .pos-3-2 {
-  transform: translateX(12.3rem) translateY(18.4rem);
+  transform: translate(12.3rem, 18.4rem);
 }
 .pos-3-3 {
-  transform: translateX(18.4rem) translateY(18.4rem);
+  transform: translate(18.4rem, 18.4rem);
 }
 .tile-2 {
   background: #efabcb;
